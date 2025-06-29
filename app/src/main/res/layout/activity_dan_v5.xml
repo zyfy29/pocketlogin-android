@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_margin="30dp"
+            android:src="@mipmap/ic_logo"/>
+
+
+        <Button
+                android:id="@+id/btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onClickLogin"
+            android:padding="15dp"
+            android:text="开始抢单"
+            android:textSize="16sp"/>
+        <TextView
+                android:id="@+id/msg"
+                android:text=""
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        <com.dx.mobile.captcha.DXCaptchaViewV5
+            android:id="@+id/dxVCodeView"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="362dip"
+            android:layout_height="335dip"
+            android:scrollbars="none"
+            android:layout_centerHorizontal="true"/>
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

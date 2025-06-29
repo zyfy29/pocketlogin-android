@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:orientation="vertical"
+    android:tag="layout/dialog_captcha_0"
+    android:layout_width="fill_parent"
+    android:padding="1dp"
+    android:background="@drawable/dialogbg"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.dx.mobile.captcha.DXCaptchaViewV5
+        android:id="@+id/cv_captcha"
+        android:layout_gravity="center"
+        android:layout_width="362.0dip"
+        android:layout_height="335.0dip" />
+</FrameLayout>

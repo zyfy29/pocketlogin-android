@@ -1,0 +1,83 @@
+[
+  {
+    "profileName": "saas-pocket48",
+    "isSaaS": true,
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "appId": "73693bee73ab3a1ad948c7af52668642",
+    "language": "cn"
+  },
+  {
+    "profileName": "saas",
+    "isSaaS": true,
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "appId": "dxdxdxtest2017keyc3e83b6940835",
+    "language": "cn"
+  },
+  {
+    "profileName": "v1-private",
+    "isSaaS": false,
+    "ua_js": "https://rcs-demo.dingxiang-inc.com/dx-captcha/libs/greenseer.js",
+    "language": "cn",
+    "apiServer": "https://rcs-demo.dingxiang-inc.com",
+    "constIDServer": "https://rcs-demo.dingxiang-inc.com/udid/m1",
+    "captchaJS": "https://rcs-demo.dingxiang-inc.com/dx-captcha/index.js",
+    "publicPath": "https://rcs-demo.dingxiang-inc.com/dx-captcha/",
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "corsBaseURL": "https://rcs-demo.dingxiang-inc.com",
+    "appId": "77ca0992a99095d64e40f33dee0c1acc",
+    "constID_js": "https://rcs-demo.dingxiang-inc.com/dx-captcha/libs/const-id.js",
+    "keyURL": "https://rcs-demo.dingxiang-inc.com/udid/m1"
+  },
+  {
+    "profileName": "v2-private",
+    "isSaaS": false,
+    "ua_js": "https://assets.dingxiang-inc.com/ctu-group/captcha-js/2022.12.29/js/greenseer.js",
+    "language": "cn",
+    "apiServer": "https://rcs-demo.dingxiang-inc.com",
+    "constIDServer": "https://rcs-demo.dingxiang-inc.com/udid/m1",
+    "captchaJS": "https://assets.dingxiang-inc.com/ctu-group/captcha-js/2022.12.29/index.js",
+    "publicPath": "https://assets.dingxiang-inc.com/ctu-group/captcha-js/2022.12.29/",
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "corsBaseURL": "https://rcs-demo.dingxiang-inc.com",
+    "appId": "77ca0992a99095d64e40f33dee0c1acc",
+    "constID_js": "https://assets.dingxiang-inc.com/ctu-group/captcha-js/2022.12.29/js/const-id.js",
+    "keyURL": "https://rcs-demo.dingxiang-inc.com/udid/m1"
+  },
+  {
+    "profileName": "saas48",
+    "isSaaS": true,
+    "ua_js": "http://10.1.2.48/demo-saas/greenseer.js",
+    "picCDN": "http://10.1.2.48",
+    "language": "cn",
+    "apiServer": "http://10.1.2.48",
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "corsBaseURL": "http://10.1.2.48:8190",
+    "appId": "b99ceaeef42f417d1ac86128eb7f7e78",
+    "captchaJS": "https://cdn.dingxiang-inc.com/ctu-group/captcha-ui/v5/index.js"
+  },
+  {
+    "profileName": "saas48-talkback",
+    "de": 2,
+    "isSaaS": true,
+    "ua_js": "http://10.1.2.48/demo-saas/greenseer.js",
+    "language": "cn",
+    "keyURL": "http://10.1.2.48/udid/m1",
+    "picCDN": "http://10.1.2.48",
+    "showVoice": true,
+    "apiServer": "http://10.1.2.48",
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "appId": "b99ceaeef42f417d1ac86128eb7f7e78",
+    "corsBaseURL": "http://10.1.2.48:8190",
+    "constIDServer": "http://10.1.2.48/udid/m1",
+    "captchaJS": "https://cdn.dingxiang-inc.com/ctu-group/captcha-ui/v5/index.js"
+  },
+  {
+    "profileName": "saas-talkback",
+    "de": 2,
+    "isSaaS": true,
+    "showVoice": true,
+    "PRIVATE_CLEAR_TOKEN": "true",
+    "appId": "b99ceaeef42f417d1ac86128eb7f7e78",
+    "language": "cn"
+  }
+]

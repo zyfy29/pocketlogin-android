@@ -1,0 +1,42 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdk 33
+    defaultConfig {
+        applicationId "com.dx.mobile.captcha.demo_poc"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+    signingConfigs {
+        debug {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile file("demo.p12")
+            storePassword "android"
+            keyAlias "key0"
+            keyPassword "android"
+        }
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions {
+        doNotStrip "**/lib*Risk*.so"
+        doNotStrip "**/lib*Captcha*.so"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+    implementation 'com.github.jenly1314:zxing-lite:2.4.0'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.10.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    // FIXME constraintlayout 2.0.4 会导致oppo验证码显示异常, 1.1.2测试正常
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+}
