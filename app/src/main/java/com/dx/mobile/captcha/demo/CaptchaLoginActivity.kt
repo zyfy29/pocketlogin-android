@@ -7,14 +7,12 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
-import com.dx.mobile.captcha.DXCaptchaEvent
 import com.dx.mobile.captcha.DXCaptchaListener
-import com.dx.mobile.captcha.DXCaptchaView
 
 class CaptchaLoginActivity : Activity() {
-
-    private lateinit var mInlineCaptchaView: DXCaptchaView
     private var mCaptchaToken: String? = null
     private var mWay: Int = 0
     private var mVersion: Int = 0
@@ -30,31 +28,10 @@ class CaptchaLoginActivity : Activity() {
         } else {
             setContentView(R.layout.activity_captcha_login)
         }
-
-        mInlineCaptchaView = findViewById(R.id.dxVCodeView)
-        mInlineCaptchaView.visibility = View.GONE
-
-        if (mWay == WAY_INLINE) {
-            showInline()
-        }
-    }
-
-    override fun onDestroy() {
-        mInlineCaptchaView.destroy()
-        super.onDestroy()
     }
 
     fun onClickLogin(v: View) {
-        if (!mCaptchaToken.isNullOrEmpty()) {
-            Toast.makeText(this, "登陆成功", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (mWay == WAY_DIALOG) {
-            showDialog()
-        } else {
-            Toast.makeText(this, "验证成功后才可登陆", Toast.LENGTH_SHORT).show()
-        }
+        // TODO Implement your login logic here
     }
 
     fun showDialog() {
@@ -98,30 +75,49 @@ class CaptchaLoginActivity : Activity() {
         }
     }
 
-    // deprecated
-    fun showInline() {
-        mInlineCaptchaView.visibility = View.VISIBLE
+    fun onSendVerificationCode(v: View) {
+        val countryCode = findViewById<EditText>(R.id.country_code).text.toString()
+        val phoneNumber = findViewById<EditText>(R.id.phone_number).text.toString()
 
-        Profiles.initDefaultProfileInto(mInlineCaptchaView)
+        if (phoneNumber.isEmpty()) {
+            Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        mInlineCaptchaView.startToLoad(object : DXCaptchaListener {
-            override fun handleEvent(
-                webView: WebView?,
-                dxCaptchaEvent: String?,
-                p2: MutableMap<String, String>?
-            ) {
-                when (dxCaptchaEvent) {
-                    DXCaptchaEvent.DXCAPTCHA_SUCCESS.toString() -> {
-                        Toast.makeText(this@CaptchaLoginActivity, "验证成功", Toast.LENGTH_SHORT).show()
-                        Log.i("DXCaptcha", "event after dragend")
-                    }
-                    else -> {}
+        if (mCaptchaToken.isNullOrEmpty()) {
+            showDialog()
+            return
+        }
+
+        // TODO Implement your verification code sending logic here
+        val sendButton = findViewById<Button>(R.id.send_code_button)
+        sendButton.isEnabled = false
+        startCountdown(sendButton)
+    }
+
+    private fun startCountdown(button: Button, seconds: Int = 60) {
+        val handler = Handler(Looper.getMainLooper())
+        var remainingSeconds = seconds
+
+        val runnable = object : Runnable {
+            override fun run() {
+                if (remainingSeconds > 0) {
+                    button.text = "${remainingSeconds}s"
+                    remainingSeconds--
+                    handler.postDelayed(this, 1000)
+                } else {
+                    button.text = "发送"
+                    button.isEnabled = true
                 }
             }
-        })
+        }
+
+        handler.post(runnable)
     }
 
     companion object {
+        private const val TAG = "DXCaptcha"
+
         const val KEY_SHOW_WAY = "KEY_SHOW_WAY"
         const val KEY_VERSION = "KEY_KEY_VERSION"
 
@@ -129,6 +125,6 @@ class CaptchaLoginActivity : Activity() {
         const val WAY_INLINE = 2
         const val WAY_TOUCH = 3
 
-        private const val TAG = "DXCaptcha"
+        const val CAPTCHA_TOKEN_WAIT_INTERVAL = 500L
     }
 }

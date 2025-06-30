@@ -9,7 +9,6 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="60dp"
@@ -20,31 +19,54 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="账号"
+            android:text="手机号登录"
             android:textColor="#808080"
-            android:textSize="14sp"/>
+            android:textSize="16sp"/>
 
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="test123"/>
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
 
+            <EditText
+                android:id="@+id/country_code"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="86"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:text="密码"
-            android:textColor="#808080"
-            android:textSize="14sp"/>
+            <EditText
+                android:id="@+id/phone_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="phone"
+                android:hint="请输入手机号"/>
+        </LinearLayout>
 
-        <EditText
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:inputType="numberPassword"
-            android:text="12345678"/>
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
+
+            <EditText
+                android:id="@+id/verification_code"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:hint="请输入验证码"/>
+
+            <Button
+                android:id="@+id/send_code_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text="发送"
+                android:onClick="onSendVerificationCode"/>
+        </LinearLayout>
 
         <Button
             android:layout_width="match_parent"
@@ -54,18 +76,6 @@
             android:text="登录"
             android:textSize="16sp"/>
 
-
-        <com.dx.mobile.captcha.DXCaptchaView
-            android:id="@+id/dxVCodeView"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_width="300dp"
-            android:layout_height="200dp"
-            android:scrollbars="none"
-            android:layout_centerHorizontal="true"/>
-
-
     </LinearLayout>
-
 
 </RelativeLayout>
