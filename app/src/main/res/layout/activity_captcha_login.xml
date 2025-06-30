@@ -66,6 +66,7 @@
                 android:layout_marginStart="5dp"
                 android:text="发送"
                 android:onClick="onSendVerificationCode"/>
+
         </LinearLayout>
 
         <Button
@@ -75,6 +76,14 @@
             android:padding="15dp"
             android:text="登录"
             android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/token_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Token会在这里显示"
+            android:textColor="#808080"/>
 
     </LinearLayout>
 
