@@ -50,7 +50,7 @@ class CaptchaLoginActivity : Activity() {
                 when (dxCaptchaEvent) {
                     "passByServer" -> passByServer = true
                     "success" -> {
-                        Log.i(TAG, map.toString()) // {"token":"xxx"}
+                        Log.i(TAG, map.toString()) // {"token":"<intelligenceToken>:<deviceToken>"}
                         mCaptchaToken = map?.get("token") as String
                         Toast.makeText(this@CaptchaLoginActivity, "验证成功", Toast.LENGTH_SHORT).show()
                         if (passByServer) {
@@ -108,6 +108,7 @@ class CaptchaLoginActivity : Activity() {
                 } else {
                     button.text = "发送"
                     button.isEnabled = true
+                    mCaptchaToken = null
                 }
             }
         }
@@ -124,7 +125,5 @@ class CaptchaLoginActivity : Activity() {
         const val WAY_DIALOG = 1
         const val WAY_INLINE = 2
         const val WAY_TOUCH = 3
-
-        const val CAPTCHA_TOKEN_WAIT_INTERVAL = 500L
     }
 }
