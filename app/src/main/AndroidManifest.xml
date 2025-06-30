@@ -13,14 +13,6 @@
     <!-- 必选-6.0或以上需动态申请 获取手机设备唯一码-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
-    <!-- 可选-6.0或以上需动态申请 收集定位信息 手机wifi ap mac 等信息-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-    <!-- 扫码 权限-->
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-
     <application
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
@@ -37,10 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.king.zxing.CaptureActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/CaptureTheme"/>
         <activity android:name="com.dx.mobile.captcha.demo.CaptchaLoginActivity"/>
         <activity android:name="com.dx.mobile.captcha.demo.CaptchaDanActivity"/>
         <activity android:name="com.dx.mobile.captcha.demo.CaptchaConfigActivity"/>

@@ -14,7 +14,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 
 import com.king.zxing.CameraScan;
-import com.king.zxing.CaptureActivity;
 
 import org.json.JSONObject;
 
@@ -38,7 +37,6 @@ public class CaptchaConfigActivity extends Activity implements View.OnClickListe
     public static final int REQUEST_CODE_SCAN = 0X01;
     public static final int RESULT_OK = 0X01;
     private static final String TAG = "ConfigAC";
-    private Button btn_scanQRCode;
     private LinearLayout layout_scanBtn;
 
     LinearLayout.LayoutParams layoutParams;
@@ -47,10 +45,6 @@ public class CaptchaConfigActivity extends Activity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_captcha_config);
-        btn_scanQRCode = findViewById(R.id.btn_scanQRCode);
-        btn_scanQRCode.setOnClickListener(v -> {
-            startScan(CaptureActivity.class, "获取验证码配置");
-        });
         layout_scanBtn = findViewById(R.id.layout_configBtn);
         layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                 200);

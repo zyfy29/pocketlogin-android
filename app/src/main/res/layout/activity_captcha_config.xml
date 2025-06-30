@@ -38,18 +38,6 @@
         android:layout_alignParentBottom="true"
         android:orientation="vertical"
         >
-        <Button
-            android:id="@+id/btn_scanQRCode"
-            android:background="@drawable/du_color"
-            android:layout_gravity="center"
-            android:drawableStart="@drawable/scan_code_wrapper"
-            android:layout_width="200dp"
-            android:layout_height="70dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:text="扫描配置二维码"
-            >
-        </Button>
     </LinearLayout>
 
 

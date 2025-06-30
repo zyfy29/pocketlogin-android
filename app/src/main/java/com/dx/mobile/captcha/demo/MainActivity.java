@@ -46,11 +46,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        requestPermissionLauncher.launch(new String[]{
-                Manifest.permission.CAMERA,
-                Manifest.permission.VIBRATE
-        });
-
     }
 
     public void onClickPopup(View v) {
