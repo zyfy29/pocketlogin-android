@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     compileSdk 33
@@ -29,6 +30,9 @@ android {
         doNotStrip "**/lib*Risk*.so"
         doNotStrip "**/lib*Captcha*.so"
     }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
 }
 
 dependencies {
@@ -39,4 +43,5 @@ dependencies {
     implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
     // FIXME constraintlayout 2.0.4 会导致oppo验证码显示异常, 1.1.2测试正常
     implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
+    implementation 'androidx.core:core-ktx:1.10.1'
 }

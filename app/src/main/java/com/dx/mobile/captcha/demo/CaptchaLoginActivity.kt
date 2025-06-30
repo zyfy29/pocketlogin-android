@@ -1,144 +1,134 @@
-package com.dx.mobile.captcha.demo;
+package com.dx.mobile.captcha.demo
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.view.View;
-import android.webkit.WebView;
-import android.widget.Toast;
+import android.app.Activity
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.webkit.WebView
+import android.widget.Toast
+import com.dx.mobile.captcha.DXCaptchaEvent
+import com.dx.mobile.captcha.DXCaptchaListener
+import com.dx.mobile.captcha.DXCaptchaView
 
-import com.dx.mobile.captcha.DXCaptchaEvent;
-import com.dx.mobile.captcha.DXCaptchaListener;
-import com.dx.mobile.captcha.DXCaptchaView;
+class CaptchaLoginActivity : Activity() {
 
-import java.util.Map;
+    private lateinit var mInlineCaptchaView: DXCaptchaView
+    private var mCaptchaToken: String? = null
+    private var mWay: Int = 0
+    private var mVersion: Int = 0
 
-/**
- * @author white
- * @description：
- * @date 2019/6/18
- */
-public class CaptchaLoginActivity extends Activity {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    public static final String KEY_SHOW_WAY = "KEY_SHOW_WAY";
-    public static final String KEY_VERSION = "KEY_KEY_VERSION";
+        mWay = intent.getIntExtra(KEY_SHOW_WAY, 1)
+        mVersion = intent.getIntExtra(KEY_VERSION, 1)
 
-    public static final int WAY_DIALOG = 1;
-    public static final int WAY_INLINE = 2;
-    public static final int WAY_TOUCH = 3;
-
-    private static final String TAG = "DXCaptcha";
-
-    DXCaptchaView mInlineCaptchaView;
-
-    boolean mSuccess;
-    int mWay;
-    int mVersion;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mWay = getIntent().getIntExtra(KEY_SHOW_WAY, 1);
-        mVersion = getIntent().getIntExtra(KEY_VERSION, 1);
         if (mVersion == 5) {
-            setContentView(R.layout.activity_captcha_login_v5);
+            setContentView(R.layout.activity_captcha_login_v5)
         } else {
-            setContentView(R.layout.activity_captcha_login);
+            setContentView(R.layout.activity_captcha_login)
         }
-        mInlineCaptchaView = findViewById(R.id.dxVCodeView);
 
-        mInlineCaptchaView.setVisibility(View.GONE);
+        mInlineCaptchaView = findViewById(R.id.dxVCodeView)
+        mInlineCaptchaView.visibility = View.GONE
+
         if (mWay == WAY_INLINE) {
-            showInline();
+            showInline()
         }
-//        else if(mWay == WAY_DIALOG) {
-//            showDialog();
-//        }
     }
 
-    public void onDestroy() {
-        mInlineCaptchaView.destroy();
-        super.onDestroy();
+    override fun onDestroy() {
+        mInlineCaptchaView.destroy()
+        super.onDestroy()
     }
 
-
-    public void onClickLogin(View v) {
-        if (mSuccess) {
-            Toast.makeText(this, "登陆成功", Toast.LENGTH_SHORT).show();
-            return;
+    fun onClickLogin(v: View) {
+        if (!mCaptchaToken.isNullOrEmpty()) {
+            Toast.makeText(this, "登陆成功", Toast.LENGTH_SHORT).show()
+            return
         }
 
         if (mWay == WAY_DIALOG) {
-            showDialog();
+            showDialog()
         } else {
-            Toast.makeText(this, "验证成功后才可登陆", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "验证成功后才可登陆", Toast.LENGTH_SHORT).show()
         }
-
-
     }
 
-    public void showDialog() {
+    fun showDialog() {
+        Log.i(TAG, "show dialog v$mVersion")
+        val mainHandler = Handler(Looper.getMainLooper())
+        val mCaptDialog = CaptchaDialog(this, mVersion)
 
-        Log.i(TAG, "show dialog v" + mVersion);
-        Handler mainHandler = new Handler(Looper.getMainLooper());
-        final CaptchaDialog mCaptDialog = new CaptchaDialog(this, mVersion);
-        mCaptDialog.setListener(new DXCaptchaListener() {
-            boolean passByServer;
-            @Override
-            public void handleEvent(WebView webView, String dxCaptchaEvent, Map map) {
-                Log.e(TAG, "dxCaptchaEvent:" + dxCaptchaEvent);
-                switch (dxCaptchaEvent) {
-                    case "passByServer":
-                        passByServer = true;
-                        break;
-                    case "success":
-                        mSuccess = true;
-                        Toast.makeText(CaptchaLoginActivity.this, "验证成功", Toast.LENGTH_SHORT).show();
+        var passByServer = false
+        mCaptDialog.setListener(object : DXCaptchaListener {
+            override fun handleEvent(
+                webView: WebView?,
+                dxCaptchaEvent: String?,
+                map: MutableMap<String, String>?
+            ) {
+                Log.e(TAG, "dxCaptchaEvent:$dxCaptchaEvent")
+                when (dxCaptchaEvent) {
+                    "passByServer" -> passByServer = true
+                    "success" -> {
+                        Log.i(TAG, map.toString()) // {"token":"xxx"}
+                        mCaptchaToken = map?.get("token") as String
+                        Toast.makeText(this@CaptchaLoginActivity, "验证成功", Toast.LENGTH_SHORT).show()
                         if (passByServer) {
-                            mainHandler.postDelayed(mCaptDialog::dismiss, 800);
+                            mainHandler.postDelayed({ mCaptDialog.dismiss() }, 800)
                         } else {
-                            mCaptDialog.dismiss();
+                            mCaptDialog.dismiss()
                         }
-                        break;
-                    case "onCaptchaJsLoaded":
-                        break;
-                    case "onCaptchaJsLoadFail": {
+                    }
+                    "onCaptchaJsLoaded" -> {}
+                    "onCaptchaJsLoadFail" -> {
                         // 这种情况下请检查captchaJs配置，或者您cdn网络，或者与之相关的数字证书
-                        Toast.makeText(getApplicationContext(), "检测到验证码加载错误，请点击重试", Toast.LENGTH_LONG).show();
-                        break;
+                        Toast.makeText(applicationContext, "检测到验证码加载错误，请点击重试", Toast.LENGTH_LONG).show()
                     }
                 }
             }
-        });
+        })
 
-        mCaptDialog.init(-1);
+        mCaptDialog.init(-1)
 
-        if (!mCaptDialog.isShowing()) {
-            mCaptDialog.show();
+        if (!mCaptDialog.isShowing) {
+            mCaptDialog.show()
         }
     }
 
+    // deprecated
+    fun showInline() {
+        mInlineCaptchaView.visibility = View.VISIBLE
 
-    public void showInline() {
-        mInlineCaptchaView.setVisibility(View.VISIBLE);
+        Profiles.initDefaultProfileInto(mInlineCaptchaView)
 
-        Profiles.initDefaultProfileInto(mInlineCaptchaView);
-
-        mInlineCaptchaView.startToLoad(new DXCaptchaListener() {
-            @Override
-            public void handleEvent(WebView webView, DXCaptchaEvent dxCaptchaEvent, Map map) {
-                switch (dxCaptchaEvent) {
-                    case DXCAPTCHA_SUCCESS:
-                        mSuccess = true;
-                        Toast.makeText(CaptchaLoginActivity.this, "验证成功", Toast.LENGTH_SHORT).show();
-                        Log.i("DXCaptcha", "event after dragend");
-                        break;
+        mInlineCaptchaView.startToLoad(object : DXCaptchaListener {
+            override fun handleEvent(
+                webView: WebView?,
+                dxCaptchaEvent: String?,
+                p2: MutableMap<String, String>?
+            ) {
+                when (dxCaptchaEvent) {
+                    DXCaptchaEvent.DXCAPTCHA_SUCCESS.toString() -> {
+                        Toast.makeText(this@CaptchaLoginActivity, "验证成功", Toast.LENGTH_SHORT).show()
+                        Log.i("DXCaptcha", "event after dragend")
+                    }
+                    else -> {}
                 }
             }
-        });
+        })
     }
 
+    companion object {
+        const val KEY_SHOW_WAY = "KEY_SHOW_WAY"
+        const val KEY_VERSION = "KEY_KEY_VERSION"
+
+        const val WAY_DIALOG = 1
+        const val WAY_INLINE = 2
+        const val WAY_TOUCH = 3
+
+        private const val TAG = "DXCaptcha"
+    }
 }
