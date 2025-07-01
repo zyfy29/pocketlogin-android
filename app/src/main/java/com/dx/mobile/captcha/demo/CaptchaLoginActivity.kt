@@ -1,9 +1,12 @@
 package com.dx.mobile.captcha.demo
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
@@ -15,6 +18,7 @@ import com.dx.mobile.captcha.DXCaptchaListener
 import com.dx.mobile.captcha.demo.schema.AppLoginRequest
 import com.dx.mobile.captcha.demo.schema.MobileCodeLogin
 import com.dx.mobile.captcha.demo.schema.SendSmsRequest
+
 
 class CaptchaLoginActivity : Activity() {
     private var mToken: String? = null
@@ -31,6 +35,13 @@ class CaptchaLoginActivity : Activity() {
             setContentView(R.layout.activity_captcha_login_v5)
         } else {
             setContentView(R.layout.activity_captcha_login)
+        }
+
+        // allow network operations on the main thread for demo purposes
+        if (Build.VERSION.SDK_INT > 9) {
+            val policy =
+                ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
         }
     }
 
@@ -77,7 +88,7 @@ class CaptchaLoginActivity : Activity() {
             Toast.makeText(
                 this@CaptchaLoginActivity,
                 "通信エラー: ${e.localizedMessage}",
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_LONG
             ).show()
         }
     }
@@ -172,7 +183,7 @@ class CaptchaLoginActivity : Activity() {
             Toast.makeText(
                 this@CaptchaLoginActivity,
                 "通信エラー: $e",
-                Toast.LENGTH_SHORT
+                Toast.LENGTH_LONG
             ).show()
             Log.e(TAG, e.toString())
             sendButton.isEnabled = true

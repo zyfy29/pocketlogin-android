@@ -1,6 +1,8 @@
 // app/src/main/java/com/dx/mobile/captcha/demo/ApiRepository.kt
 package com.dx.mobile.captcha.demo
 
+import com.dx.mobile.captcha.demo.schema.AppInfoHeader
+import com.google.gson.Gson
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -8,14 +10,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 import okhttp3.logging.HttpLoggingInterceptor
+import java.util.UUID
 
 object ApiRepository {
     private const val BASE_URL = "https://pocketapi.48.cn/"
+    private val deviceId: String = UUID.randomUUID().toString()
 
-    private class HeaderInterceptor : Interceptor {
+
+    private class HeaderInterceptor(
+    ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
+            val appInfo = AppInfoHeader(deviceId = deviceId)
+            val appInfoJson = Gson().toJson(appInfo)
             val request = chain.request().newBuilder()
-                .addHeader("appInfo", "{\"vendor\":\"apple\",\"deviceId\":\"52EED3B6-C347-4731-A285-35035D7D0B7B\",\"appVersion\":\"7.1.26\",\"appBuild\":\"25052701\",\"osVersion\":\"18.5.0\",\"osType\":\"ios\",\"deviceName\":\"iPhone 13 Pro\",\"os\":\"ios\"}")
+                .addHeader("appInfo", appInfoJson)
                 .build()
             return chain.proceed(request)
         }
@@ -27,7 +35,7 @@ object ApiRepository {
     }
 
     private val okHttpClient = OkHttpClient.Builder()
-//        .addInterceptor(HeaderInterceptor())
+        .addInterceptor(HeaderInterceptor())
         .addInterceptor(loggingInterceptor) // ここを追加
         .build()
 
