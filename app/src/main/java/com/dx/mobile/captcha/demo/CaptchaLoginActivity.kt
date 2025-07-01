@@ -1,29 +1,31 @@
 package com.dx.mobile.captcha.demo
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
-import android.webkit.WebView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import com.dx.mobile.captcha.DXCaptchaListener
-import com.dx.mobile.captcha.demo.schema.AppLoginRequest
-import com.dx.mobile.captcha.demo.schema.MobileCodeLogin
-import com.dx.mobile.captcha.demo.schema.SendSmsRequest
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 
-
-class CaptchaLoginActivity : Activity() {
-    private var mToken: String? = null
+class CaptchaLoginActivity : AppCompatActivity() {
     private var mWay: Int = 0
     private var mVersion: Int = 0
+    private lateinit var viewModel: CaptchaLoginViewModel
+
+    private lateinit var countryCodeEditText: EditText
+    private lateinit var phoneNumberEditText: EditText
+    private lateinit var verificationCodeEditText: EditText
+    private lateinit var sendCodeButton: Button
+    private lateinit var tokenDisplayTextView: TextView
+    private lateinit var mCaptDialog: CaptchaDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,102 +39,115 @@ class CaptchaLoginActivity : Activity() {
             setContentView(R.layout.activity_captcha_login)
         }
 
+        // Initialize ViewModel
+        viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+            .create(CaptchaLoginViewModel::class.java)
+
+        // Initialize UI elements
+        initializeViews()
+
+        // Set up observers
+        setupObservers()
+
         // allow network operations on the main thread for demo purposes
         if (Build.VERSION.SDK_INT > 9) {
-            val policy =
-                ThreadPolicy.Builder().permitAll().build()
+            val policy = ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
         }
     }
 
-    fun onClickLogin(v: View) {
-        val countryCode = findViewById<EditText>(R.id.country_code).text.toString()
-        val phoneNumber = findViewById<EditText>(R.id.phone_number).text.toString()
-        val code = findViewById<EditText>(R.id.verification_code).text.toString()
+    private fun initializeViews() {
+        countryCodeEditText = findViewById(R.id.country_code)
+        phoneNumberEditText = findViewById(R.id.phone_number)
+        verificationCodeEditText = findViewById(R.id.verification_code)
+        sendCodeButton = findViewById(R.id.send_code_button)
+        tokenDisplayTextView = findViewById(R.id.token_display)
+    }
 
-        if (phoneNumber.isEmpty() || code.isEmpty()) {
-            Toast.makeText(this, "必要な情報を入力してください", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val intelligenceToken = mToken ?: ""
-        val deviceToken = mToken?.substringAfter(":") ?: ""
-        if (intelligenceToken.isEmpty() || deviceToken.isEmpty()) {
-            Toast.makeText(this, "请先完成验证码验证", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val loginRequest = AppLoginRequest(
-            mobileCodeLogin = MobileCodeLogin(
-                area = countryCode,
-                mobile = phoneNumber,
-                code = code
-            ),
-            intelligenceToken = intelligenceToken,
-            deviceToken = deviceToken
-        )
-
-        try {
-            val response = ApiRepository.apiService.appLogin(loginRequest).execute()
-            if (response.isSuccessful && response.body()?.success == true) {
-                Toast.makeText(this@CaptchaLoginActivity, "ログイン成功", Toast.LENGTH_SHORT).show()
-                findViewById<TextView>(R.id.token_display).text = response.body()?.content?.token ?: "failed to get token"
-            } else {
-                Toast.makeText(
-                    this@CaptchaLoginActivity,
-                    response.body()?.message ?: "ログイン失敗",
-                    Toast.LENGTH_SHORT
-                ).show()
+    private fun setupObservers() {
+        // Observe login result
+        viewModel.loginResult.observe(this) { result ->
+            when (result) {
+                is CaptchaLoginViewModel.LoginResult.Success -> {
+                    Toast.makeText(this, "ログイン成功", Toast.LENGTH_SHORT).show()
+                    tokenDisplayTextView.text = result.token
+                }
+                is CaptchaLoginViewModel.LoginResult.Error -> {
+                    Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
+                }
             }
-        } catch (e: Exception) {
-            Toast.makeText(
-                this@CaptchaLoginActivity,
-                "通信エラー: ${e.localizedMessage}",
-                Toast.LENGTH_LONG
-            ).show()
+        }
+
+        // Observe send code result
+        viewModel.sendCodeResult.observe(this) { result ->
+            when (result) {
+                is CaptchaLoginViewModel.SendCodeResult.Success -> {
+                    Toast.makeText(this, "验证码已发送", Toast.LENGTH_SHORT).show()
+                    sendCodeButton.isEnabled = false
+                }
+                is CaptchaLoginViewModel.SendCodeResult.Error -> {
+                    Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
+                    sendCodeButton.isEnabled = true
+                }
+            }
+        }
+
+        // Observe captcha state
+        viewModel.captchaState.observe(this) { state ->
+            when (state) {
+                is CaptchaLoginViewModel.CaptchaState.ShowDialog -> {
+                    showDialog()
+                }
+                is CaptchaLoginViewModel.CaptchaState.Success -> {
+                    Toast.makeText(this, "验证成功", Toast.LENGTH_SHORT).show()
+                    if (state.passByServer) {
+                        android.os.Handler().postDelayed({ mCaptDialog.dismiss() }, 800)
+                    } else {
+                        mCaptDialog.dismiss()
+                    }
+
+                    // server may return empty deviceToken at the first time
+                    val (_, deviceToken) = viewModel.splitToken()
+                    if (deviceToken.isEmpty()) {
+                        viewModel.retryCaptcha()
+                    } else {
+                        onSendVerificationCode(sendCodeButton)
+                    }
+                }
+                is CaptchaLoginViewModel.CaptchaState.Error -> {
+                    Toast.makeText(applicationContext, state.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
+        // Observe countdown state
+        viewModel.countdownState.observe(this) { state ->
+            when (state) {
+                is CaptchaLoginViewModel.CountdownState.Counting -> {
+                    sendCodeButton.text = "${state.seconds}s"
+                    sendCodeButton.isEnabled = false
+                }
+                is CaptchaLoginViewModel.CountdownState.Finished -> {
+                    sendCodeButton.text = "发送"
+                    sendCodeButton.isEnabled = true
+                    viewModel.resetToken()
+                }
+            }
         }
     }
 
-    fun showDialog() {
+    fun onClickLogin(v: View) {
+        val countryCode = countryCodeEditText.text.toString()
+        val phoneNumber = phoneNumberEditText.text.toString()
+        val code = verificationCodeEditText.text.toString()
+
+        viewModel.login(countryCode, phoneNumber, code)
+    }
+
+    private fun showDialog() {
         Log.i(TAG, "show dialog v$mVersion")
-        val mainHandler = Handler(Looper.getMainLooper())
-        val mCaptDialog = CaptchaDialog(this, mVersion)
-
-        var passByServer = false
-        mCaptDialog.setListener(object : DXCaptchaListener {
-            override fun handleEvent(
-                webView: WebView?,
-                dxCaptchaEvent: String?,
-                map: MutableMap<String, String>?
-            ) {
-                Log.e(TAG, "dxCaptchaEvent:$dxCaptchaEvent")
-                when (dxCaptchaEvent) {
-                    "passByServer" -> passByServer = true
-                    "success" -> {
-                        Log.i(TAG, map.toString()) // {"token":"<captChaToken>:<deviceToken>"}
-                        mToken = map?.get("token") as String
-                        Toast.makeText(this@CaptchaLoginActivity, "验证成功", Toast.LENGTH_SHORT)
-                            .show()
-                        if (passByServer) {
-                            mainHandler.postDelayed({ mCaptDialog.dismiss() }, 800)
-                        } else {
-                            mCaptDialog.dismiss()
-                        }
-                    }
-
-                    "onCaptchaJsLoaded" -> {}
-                    "onCaptchaJsLoadFail" -> {
-                        // 这种情况下请检查captchaJs配置，或者您cdn网络，或者与之相关的数字证书
-                        Toast.makeText(
-                            applicationContext,
-                            "检测到验证码加载错误，请点击重试",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-            }
-        })
-
+        mCaptDialog = CaptchaDialog(this, mVersion)
+        mCaptDialog.setListener(viewModel.getCaptchaListener())
         mCaptDialog.init(-1)
 
         if (!mCaptDialog.isShowing) {
@@ -142,73 +157,10 @@ class CaptchaLoginActivity : Activity() {
 
 
     fun onSendVerificationCode(v: View) {
-        val countryCode = findViewById<EditText>(R.id.country_code).text.toString()
-        val phoneNumber = findViewById<EditText>(R.id.phone_number).text.toString()
+        val countryCode = countryCodeEditText.text.toString()
+        val phoneNumber = phoneNumberEditText.text.toString()
 
-        if (phoneNumber.isEmpty()) {
-            Toast.makeText(this, "请输入手机号", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val intelligenceToken = mToken ?: ""
-        val deviceToken = mToken?.substringAfter(":") ?: ""
-        if (intelligenceToken.isEmpty() || deviceToken.isEmpty()) {
-            showDialog()
-            return
-        }
-
-        val sendButton = findViewById<Button>(R.id.send_code_button)
-        sendButton.isEnabled = false
-        val request = SendSmsRequest(
-            mobile = phoneNumber,
-            area = countryCode,
-            intelligenceToken = intelligenceToken,
-            deviceToken = deviceToken
-        )
-
-        try {
-            val response = ApiRepository.apiService.sendSms(request).execute()
-            if (response.isSuccessful && response.body()?.success == true) {
-                Toast.makeText(this@CaptchaLoginActivity, "验证码已发送", Toast.LENGTH_SHORT).show()
-                startCountdown(sendButton)
-            } else {
-                Toast.makeText(
-                    this@CaptchaLoginActivity,
-                    response.body()?.message ?: "发送失败",
-                    Toast.LENGTH_SHORT
-                ).show()
-                sendButton.isEnabled = true
-            }
-        } catch (e: Exception) {
-            Toast.makeText(
-                this@CaptchaLoginActivity,
-                "通信エラー: $e",
-                Toast.LENGTH_LONG
-            ).show()
-            Log.e(TAG, e.toString())
-            sendButton.isEnabled = true
-        }
-    }
-
-    private fun startCountdown(button: Button, seconds: Int = 60) {
-        val handler = Handler(Looper.getMainLooper())
-        var remainingSeconds = seconds
-
-        val runnable = object : Runnable {
-            override fun run() {
-                if (remainingSeconds > 0) {
-                    button.text = "${remainingSeconds}s"
-                    remainingSeconds--
-                    handler.postDelayed(this, 1000)
-                } else {
-                    button.text = "发送"
-                    button.isEnabled = true
-                    mToken = null
-                }
-            }
-        }
-
-        handler.post(runnable)
+        viewModel.sendVerificationCode(countryCode, phoneNumber)
     }
 
     companion object {
