@@ -35,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.btn_h5:
                 onClickH5(v);
                 break;
+            case R.id.btn_login_history:
+                onClickLoginHistory(v);
+                break;
             case R.id.btn_dan:
                 Intent intent = new Intent(this, CaptchaDanActivity.class);
                 startActivity(intent);
@@ -73,6 +76,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickH5(View v) {
         Intent intent = new Intent(this, H5Activity.class);
+        startActivity(intent);
+    }
+
+    private void onClickLoginHistory(View v) {
+        Intent intent = new Intent(this, LoginHistoryActivity.class);
         startActivity(intent);
     }
 

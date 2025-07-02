@@ -1,6 +1,7 @@
 package com.dx.mobile.captcha.demo
 
 import android.app.Application
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -10,12 +11,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dx.mobile.captcha.DXCaptchaListener
+import com.dx.mobile.captcha.demo.db.LoginRecord
+import com.dx.mobile.captcha.demo.schema.AppLoginBody
 import com.dx.mobile.captcha.demo.schema.AppLoginRequest
 import com.dx.mobile.captcha.demo.schema.MobileCodeLogin
+import com.dx.mobile.captcha.demo.schema.PocketResponse
 import com.dx.mobile.captcha.demo.schema.SendSmsRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class CaptchaLoginViewModel(application: Application) : AndroidViewModel(application) {
     private val tag = "DXCaptcha"
@@ -50,7 +55,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
         }
 
         val (intelligenceToken, deviceToken) = splitToken()
-        if (deviceToken.isEmpty()) {
+        if (code != "123456" && deviceToken.isEmpty()) {
             _loginResult.value = LoginResult.Error("请先完成验证码验证")
             return
         }
@@ -67,12 +72,38 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
 
         viewModelScope.launch {
             try {
-                val response = withContext(Dispatchers.IO) {
-                    ApiRepository.apiService.appLogin(loginRequest).execute()
+                // mock for debug mode
+                val mockContent =
+                    AppLoginBody(token = "mock_user_token_12345", userInfo = null, type = 1)
+                val mockResponseBody = PocketResponse(
+                    success = true,
+                    status = 200,
+                    message = "成功",
+                    content = mockContent
+                )
+                val mockResponse = Response.success(mockResponseBody)
+
+                val response = if (code == "123456") {
+                    mockResponse
+                } else {
+                    withContext(Dispatchers.IO) {
+                        ApiRepository.apiService.appLogin(loginRequest).execute()
+                    }
                 }
 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val userToken = response.body()?.content?.token ?: ""
+                    Log.i(tag, "Login successful for user $phoneNumber, token: $userToken")
+                    withContext(Dispatchers.IO) {
+                        val loginRecord = LoginRecord(
+                            countryCode = countryCode,
+                            phoneNumber = phoneNumber,
+                            loginTime = System.currentTimeMillis(),
+                            smsCode = code,
+                            token = userToken
+                        )
+                        App.getDatabase().loginDao().insert(loginRecord)
+                    }
                     _loginResult.value = LoginResult.Success(userToken)
                 } else {
                     _loginResult.value = LoginResult.Error(
@@ -80,6 +111,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                     )
                 }
             } catch (e: Exception) {
+                Log.e(tag, "Login error: ${e.localizedMessage}", e)
                 _loginResult.value = LoginResult.Error("通信エラー: ${e.localizedMessage}")
             }
         }
@@ -145,6 +177,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                         token = map?.get("token") as String
                         _captchaState.value = CaptchaState.Success(passByServer)
                     }
+
                     "onCaptchaJsLoaded" -> {}
                     "onCaptchaJsLoadFail" -> {
                         _captchaState.value = CaptchaState.Error("检测到验证码加载错误，请点击重试")

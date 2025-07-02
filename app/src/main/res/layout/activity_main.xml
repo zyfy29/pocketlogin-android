@@ -42,7 +42,7 @@
             android:layout_height="80dp"
             android:gravity="center"
             android:onClick="onClick"
-            android:text="弹窗式集成" />
+            android:text="验证码登录" />
 
         <Button
             android:id="@+id/btn_captcha_inline"
@@ -70,6 +70,15 @@
             android:onClick="onClick"
             android:text="H5 Demo"
             android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btn_login_history"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="历史记录" />
+
     </LinearLayout>
 
 

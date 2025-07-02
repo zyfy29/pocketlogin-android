@@ -33,7 +33,7 @@ android {
         doNotStrip "**/lib*Captcha*.so"
     }
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '1.8'
     }
 }
 
@@ -53,6 +53,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
     implementation "com.squareup.okhttp3:logging-interceptor:4.12.0"
     implementation 'com.google.code.gson:gson:2.11.0'
+    implementation 'com.google.android.material:material:1.6.0'
+    implementation 'androidx.activity:activity:1.7.2'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 
     androidTestImplementation 'androidx.test:runner:1.5.2'
