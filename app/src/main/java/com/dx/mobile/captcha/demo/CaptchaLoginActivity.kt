@@ -130,7 +130,6 @@ class CaptchaLoginActivity : AppCompatActivity() {
                 is CaptchaLoginViewModel.CountdownState.Finished -> {
                     sendCodeButton.text = "发送"
                     sendCodeButton.isEnabled = true
-                    viewModel.resetToken()
                 }
             }
         }

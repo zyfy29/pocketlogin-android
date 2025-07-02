@@ -1,7 +1,6 @@
 package com.dx.mobile.captcha.demo
 
 import android.app.Application
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -39,11 +38,11 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
     val countdownState: LiveData<CountdownState> = _countdownState
 
     // State variables
-    private var token: String? = null
+    private var captchaToken: String? = null
 
     fun splitToken(): Pair<String, String> {
-        val intelligenceToken = token ?: ""
-        val deviceToken = token?.substringAfter(":") ?: ""
+        val intelligenceToken = captchaToken ?: ""
+        val deviceToken = captchaToken?.substringAfter(":") ?: ""
         return Pair(intelligenceToken, deviceToken)
     }
 
@@ -104,6 +103,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                         )
                         App.getDatabase().loginDao().insert(loginRecord)
                     }
+                    captchaToken = null // Clear captcha token after successful login
                     _loginResult.value = LoginResult.Success(userToken)
                 } else {
                     _loginResult.value = LoginResult.Error(
@@ -174,7 +174,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                     "passByServer" -> passByServer = true
                     "success" -> {
                         Log.i(tag, map.toString())
-                        token = map?.get("token") as String
+                        captchaToken = map?.get("token") as String
                         _captchaState.value = CaptchaState.Success(passByServer)
                     }
 
@@ -204,17 +204,12 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                     handler.postDelayed(this, 1000)
                 } else {
                     _countdownState.value = CountdownState.Finished
-                    token = null
+//                    captchaToken = null
                 }
             }
         }
 
         handler.post(runnable)
-    }
-
-    // Reset token
-    fun resetToken() {
-        token = null
     }
 
     // Sealed classes for state
