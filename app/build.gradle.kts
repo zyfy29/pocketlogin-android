@@ -88,11 +88,11 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.google.android.material:material:1.6.0")
     implementation("androidx.activity:activity:1.7.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+    testImplementation("junit:junit:4.13.2")
 
-    androidTestImplementation("androidx.test:runner:1.5.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test:core:1.6.1")
+    androidTestImplementation("androidx.test:runner:1.6.1")
+    androidTestImplementation("androidx.test:rules:1.6.1")
 
     val roomVersion = "2.5.2"
 
@@ -103,8 +103,4 @@ dependencies {
     implementation("androidx.room:room-guava:$roomVersion")
     testImplementation("androidx.room:room-testing:$roomVersion")
     implementation("androidx.room:room-paging:$roomVersion")
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
 }

@@ -11,6 +11,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dx.mobile.captcha.DXCaptchaListener
 import com.dx.mobile.captcha.demo.db.LoginRecord
+import com.dx.mobile.captcha.demo.repo.ApiLoginRepository
+import com.dx.mobile.captcha.demo.repo.LoginRepository
 import com.dx.mobile.captcha.demo.schema.AppLoginBody
 import com.dx.mobile.captcha.demo.schema.AppLoginRequest
 import com.dx.mobile.captcha.demo.schema.MobileCodeLogin
@@ -21,7 +23,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class CaptchaLoginViewModel(application: Application) : AndroidViewModel(application) {
+class CaptchaLoginViewModel(
+    application: Application,
+    private val loginRepository: LoginRepository = ApiLoginRepository
+) : AndroidViewModel(application) {
     private val tag = "DXCaptcha"
 
     // LiveData to observe in Activity
@@ -86,7 +91,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
                     mockResponse
                 } else {
                     withContext(Dispatchers.IO) {
-                        ApiRepository.apiService.appLogin(loginRequest).execute()
+                        loginRepository.appLogin(loginRequest)
                     }
                 }
 
@@ -140,7 +145,7 @@ class CaptchaLoginViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
-                    ApiRepository.apiService.sendSms(request).execute()
+                    loginRepository.sendSms(request)
                 }
 
                 if (response.isSuccessful && response.body()?.success == true) {
