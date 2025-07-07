@@ -2,23 +2,22 @@
 package com.dx.mobile.captcha.demo
 
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.runner.RunWith
 
 /**
  * Hello World インストルメンテーションテスト
  */
-@RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
 
     @Test
     fun useAppContext() {
-        // アプリのコンテキストを取得
+        val packageName = if (BuildConfig.DEBUG) {
+            "com.dx.mobile.captcha.demo_poc.debug"
+        } else {
+            "com.dx.mobile.captcha.demo_poc"
+        }
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-
-        // パッケージ名の検証（build.gradleのapplicationIdと一致すること）
-        assertEquals("com.dx.mobile.captcha.demo_poc", appContext.packageName)
+        assertEquals(packageName, appContext.packageName)
     }
 }
