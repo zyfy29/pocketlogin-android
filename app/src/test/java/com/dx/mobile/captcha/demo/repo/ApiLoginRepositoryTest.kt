@@ -1,7 +1,7 @@
 package com.dx.mobile.captcha.demo.repo
 
 import com.dx.mobile.captcha.demo.schema.SendSmsRequest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
 
@@ -14,7 +14,7 @@ class ApiLoginRepositoryTest {
             intelligenceToken = "test_intelligence_token",
             deviceToken = "test"
         )
-        runBlocking {
+        runTest {
             val result = ApiLoginRepository.sendSms(request)
             Assert.assertTrue(result.isSuccessful)
             Assert.assertFalse(result.body()?.success ?: false)

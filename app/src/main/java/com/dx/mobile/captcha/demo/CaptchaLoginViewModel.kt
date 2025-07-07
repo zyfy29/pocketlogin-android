@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.webkit.WebView
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -43,7 +44,8 @@ class CaptchaLoginViewModel(
     val countdownState: LiveData<CountdownState> = _countdownState
 
     // State variables
-    private var captchaToken: String? = null
+    @VisibleForTesting
+    var captchaToken: String? = null
 
     fun splitToken(): Pair<String, String> {
         val intelligenceToken = captchaToken ?: ""
@@ -59,7 +61,7 @@ class CaptchaLoginViewModel(
         }
 
         val (intelligenceToken, deviceToken) = splitToken()
-        if (code != "123456" && deviceToken.isEmpty()) {
+        if (deviceToken.isEmpty()) {
             _loginResult.value = LoginResult.Error("请先完成验证码验证")
             return
         }
@@ -87,12 +89,8 @@ class CaptchaLoginViewModel(
                 )
                 val mockResponse = Response.success(mockResponseBody)
 
-                val response = if (code == "123456") {
-                    mockResponse
-                } else {
-                    withContext(Dispatchers.IO) {
-                        loginRepository.appLogin(loginRequest)
-                    }
+                val response = withContext(Dispatchers.IO) {
+                    loginRepository.appLogin(loginRequest)
                 }
 
                 if (response.isSuccessful && response.body()?.success == true) {

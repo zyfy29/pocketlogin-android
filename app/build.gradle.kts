@@ -93,6 +93,11 @@ dependencies {
     androidTestImplementation("androidx.test:core:1.6.1")
     androidTestImplementation("androidx.test:runner:1.6.1")
     androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    val kotlinxCoroutinesVersion = "1.8.1"
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinxCoroutinesVersion")
 
     val roomVersion = "2.5.2"
 
