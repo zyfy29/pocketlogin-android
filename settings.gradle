@@ -1,3 +1,3 @@
-rootProject.name = 'PocketLogin'
+rootProject.name = "PocketLogin"
 
-include ':app'
+include("app")
