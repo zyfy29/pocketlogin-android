@@ -12,23 +12,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dx.mobile.captcha.DXCaptchaListener
 import com.dx.mobile.captcha.demo.db.LoginRecord
-import com.dx.mobile.captcha.demo.repo.ApiLoginRepository
 import com.dx.mobile.captcha.demo.repo.LoginRepository
-import com.dx.mobile.captcha.demo.schema.AppLoginBody
 import com.dx.mobile.captcha.demo.schema.AppLoginRequest
 import com.dx.mobile.captcha.demo.schema.MobileCodeLogin
-import com.dx.mobile.captcha.demo.schema.PocketResponse
 import com.dx.mobile.captcha.demo.schema.SendSmsRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Response
 
 class CaptchaLoginViewModel(
     application: Application,
-    private val loginRepository: LoginRepository = ApiLoginRepository
+//    private val loginRepository: LoginRepository = ApiLoginRepository
 ) : AndroidViewModel(application) {
     private val tag = "DXCaptcha"
+    lateinit var loginRepository: LoginRepository
 
     // LiveData to observe in Activity
     private val _loginResult = MutableLiveData<LoginResult>()
@@ -78,17 +75,6 @@ class CaptchaLoginViewModel(
 
         viewModelScope.launch {
             try {
-                // mock for debug mode
-                val mockContent =
-                    AppLoginBody(token = "mock_user_token_12345", userInfo = null, type = 1)
-                val mockResponseBody = PocketResponse(
-                    success = true,
-                    status = 200,
-                    message = "成功",
-                    content = mockContent
-                )
-                val mockResponse = Response.success(mockResponseBody)
-
                 val response = withContext(Dispatchers.IO) {
                     loginRepository.appLogin(loginRequest)
                 }

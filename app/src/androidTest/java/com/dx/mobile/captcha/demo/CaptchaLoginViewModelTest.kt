@@ -30,7 +30,8 @@ class CaptchaLoginViewModelTest {
     fun setUp() {
         app = ApplicationProvider.getApplicationContext()
         database = App.getDatabase()
-        viewModel = CaptchaLoginViewModel(app, MockLoginRepository())
+        viewModel = CaptchaLoginViewModel(app)
+        viewModel.loginRepository = MockLoginRepository()
     }
 
     @Test

@@ -1,7 +1,5 @@
 package com.dx.mobile.captcha.demo
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -14,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.dx.mobile.captcha.demo.repo.ApiLoginRepository
 
 class CaptchaLoginActivity : AppCompatActivity() {
     private var mWay: Int = 0
@@ -42,6 +41,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
         // Initialize ViewModel
         viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
             .create(CaptchaLoginViewModel::class.java)
+        viewModel.loginRepository = ApiLoginRepository
 
         // Initialize UI elements
         initializeViews()
@@ -72,6 +72,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "ログイン成功", Toast.LENGTH_SHORT).show()
                     tokenDisplayTextView.text = result.token
                 }
+
                 is CaptchaLoginViewModel.LoginResult.Error -> {
                     Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                 }
@@ -85,6 +86,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "验证码已发送", Toast.LENGTH_SHORT).show()
                     sendCodeButton.isEnabled = false
                 }
+
                 is CaptchaLoginViewModel.SendCodeResult.Error -> {
                     Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                     sendCodeButton.isEnabled = true
@@ -98,6 +100,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
                 is CaptchaLoginViewModel.CaptchaState.ShowDialog -> {
                     showDialog()
                 }
+
                 is CaptchaLoginViewModel.CaptchaState.Success -> {
                     Toast.makeText(this, "验证成功", Toast.LENGTH_SHORT).show()
                     if (state.passByServer) {
@@ -114,6 +117,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
                         onSendVerificationCode(sendCodeButton)
                     }
                 }
+
                 is CaptchaLoginViewModel.CaptchaState.Error -> {
                     Toast.makeText(applicationContext, state.message, Toast.LENGTH_LONG).show()
                 }
@@ -127,6 +131,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
                     sendCodeButton.text = "${state.seconds}s"
                     sendCodeButton.isEnabled = false
                 }
+
                 is CaptchaLoginViewModel.CountdownState.Finished -> {
                     sendCodeButton.text = "发送"
                     sendCodeButton.isEnabled = true
