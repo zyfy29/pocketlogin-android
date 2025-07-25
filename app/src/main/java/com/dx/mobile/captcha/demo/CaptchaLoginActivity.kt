@@ -27,6 +27,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
     private lateinit var mCaptDialog: CaptchaDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i("CaptchaLoginActivity", "onCreate called")
         super.onCreate(savedInstanceState)
 
         mWay = intent.getIntExtra(KEY_SHOW_WAY, 1)
@@ -41,7 +42,7 @@ class CaptchaLoginActivity : AppCompatActivity() {
         // Initialize ViewModel
         viewModel = ViewModelProvider.AndroidViewModelFactory.getInstance(application)
             .create(CaptchaLoginViewModel::class.java)
-        viewModel.loginRepository = ApiLoginRepository
+        viewModel.loginRepository = ApiLoginRepository(this)
 
         // Initialize UI elements
         initializeViews()

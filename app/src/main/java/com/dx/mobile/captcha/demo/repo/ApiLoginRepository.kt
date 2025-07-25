@@ -1,5 +1,7 @@
 package com.dx.mobile.captcha.demo.repo
 
+import android.content.Context
+import androidx.core.content.edit
 import com.dx.mobile.captcha.demo.ApiService
 import com.dx.mobile.captcha.demo.schema.AppInfoHeader
 import com.dx.mobile.captcha.demo.schema.AppLoginBody
@@ -16,11 +18,29 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.UUID
 
-object ApiLoginRepository : LoginRepository {
-    private const val BASE_URL = "https://pocketapi.48.cn/"
-    private val deviceId: String = UUID.randomUUID().toString()
+class ApiLoginRepository(context: Context) : LoginRepository {
+    companion object {
+        private const val BASE_URL = "https://pocketapi.48.cn/"
+    }
+
+    private val deviceId: String = getOrCreateDeviceId(context)
+    private fun getOrCreateDeviceId(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val existingDeviceId = sharedPreferences.getString("device_id", null)
+
+        return if (existingDeviceId != null) {
+            existingDeviceId
+        } else {
+            val newDeviceId = UUID.randomUUID().toString()
+            sharedPreferences.edit {
+                putString("device_id", newDeviceId)
+            }
+            newDeviceId
+        }
+    }
 
     private class HeaderInterceptor(
+        private val deviceId: String
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
             val appInfo = AppInfoHeader(deviceId = deviceId)
@@ -40,7 +60,7 @@ object ApiLoginRepository : LoginRepository {
         }
 
         val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(HeaderInterceptor())
+            .addInterceptor(HeaderInterceptor(deviceId))
             .addInterceptor(loggingInterceptor) // ここを追加
             .build()
 
