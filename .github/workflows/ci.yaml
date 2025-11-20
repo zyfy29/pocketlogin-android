@@ -45,7 +45,7 @@ jobs:
 
     - name: Rename APK
       run: |
-        mv app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/pocketlogin-debug-${{ steps.time.outputs.timestamp }}.apk
+        mv app/build/outputs/apk/debug/pocketlogin-*-debug.apk app/build/outputs/apk/debug/pocketlogin-debug-${{ steps.time.outputs.timestamp }}.apk
 
     - name: Create Release
       uses: softprops/action-gh-release@v1
